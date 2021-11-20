@@ -13,6 +13,9 @@ scene.add(light);
 //global variables
 const startPosition = 3
 const endPosition = -startPosition
+const text = document.querySelector('.text')
+const gameTimeLimit = 10
+let gameState = 'loading'
 
 
 function createCube(size, positionX, rotationY = 0, color = 0xfbc851){
@@ -99,6 +102,30 @@ class Player{
 
 const player = new Player()
 let doll = new Doll()
+
+
+function startGame() {
+  gameState = 'started'
+  let progressBar = createCube({w: 5, h: .1, d: 1}, 0)
+  progressBar.position.y = 3.35
+  gsap.to(progressBar.scale,{x:0, duration: gameTimeLimit, ease: 'none'})
+  doll.start()  
+}
+
+init()
+
+async function init(){
+  await delay(500)
+  text.innerText = "Starting in 3"
+  await delay(500)
+  text.innerText = "Starting in 2"
+  await delay(500)
+  text.innerText = "Starting in 1"
+  await delay(500)
+  text.innerText = "GO!!!!!"
+  startGame()
+}
+
 setTimeout(() => {
   doll.start()
 },2000)
@@ -119,6 +146,7 @@ function onwWindowResize() {
 }
 
 window.addEventListener('keydown', (e) => {
+  if(gameState != 'started') return
   if(e.key === 'ArrowUp'){
     player.run()
   }
@@ -126,6 +154,7 @@ window.addEventListener('keydown', (e) => {
 
 
 window.addEventListener('keyup', (e) => {
+  if(gameState != 'started') return
   if(e.key === 'ArrowUp'){
     player.stop()
   }
