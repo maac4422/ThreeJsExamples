@@ -10,13 +10,19 @@ renderer.setClearColor(0xb7c3f3, 1)
 const light = new THREE.AmbientLight(0xffffff); // soft white light
 scene.add(light);
 
+//global variables
+const startPosition = 3
+const endPosition = -startPosition
 
-function createCube(size, positionX){
+
+function createCube(size, positionX, rotationY = 0, color = 0xfbc851){
   const geometry = new THREE.BoxGeometry(size.w, size.h, size.d);
-  const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+  const material = new THREE.MeshBasicMaterial( { color: color } );
   const cube = new THREE.Mesh( geometry, material );
   cube.position.x = positionX
+  cube.rotation.y = rotationY
   scene.add( cube );
+  return cube
 }
 
 camera.position.z = 5;
@@ -43,11 +49,38 @@ class Doll {
 }
 
 function createTrack() {
-  createCube({w: .2, h: 1, d: 1}, 3)
+  createCube({w: startPosition * 2 + .2, h: 1.5, d: 1}, 0, 0, 0xe5a716).position.z = -1
+  createCube({w: .2, h: 1.5, d: 1}, startPosition, -.35)
+  createCube({w: .2, h: 1.5, d: 1}, endPosition, .35)
 }
 
 createTrack()
 
+class Player{
+  constructor(){
+    const geometry = new THREE.SphereGeometry( .3, 32, 16 );
+    const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+    const sphere = new THREE.Mesh( geometry, material );
+    sphere.position.z = 1
+    sphere.position.x = startPosition
+    scene.add( sphere );
+    this.player = sphere
+    this.playerInfo = {
+      positionX: startPosition,
+      velocity: 0
+    }
+  }
+
+  run(){
+    this.playerInfo.velocity = .03
+  }
+
+  update(){
+    this.playerInfo.positionX -= this.playerInfo.velocity
+    this.player.position.x = this.playerInfo.positionX
+  }
+}
+const player = new Player()
 let doll = new Doll()
 setTimeout(() => {
   doll.lookBackward()
@@ -56,6 +89,7 @@ setTimeout(() => {
 function animate() {
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
+  player.update()
 }
 animate();
 
