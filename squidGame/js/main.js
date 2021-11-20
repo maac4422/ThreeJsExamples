@@ -29,6 +29,10 @@ camera.position.z = 5;
 
 const loader = new THREE.GLTFLoader();
 
+function delay(ms){
+  return new Promise(resolve => setTimeout(resolve,ms))
+}
+
 class Doll {
   constructor() {
     loader.load('./models/GiantDoll/scene.gltf',  (gltf) => {
@@ -45,6 +49,14 @@ class Doll {
 
   lookForward(){
     gsap.to(this.doll.rotation, {y: 0, duration: .45})
+  }
+
+  async start(){
+    this.lookBackward()
+    await delay((Math.random() * 1000) + 1000) 
+    this.lookForward()
+    await delay((Math.random() * 750) + 750)
+    this.start()
   }
 }
 
@@ -75,16 +87,21 @@ class Player{
     this.playerInfo.velocity = .03
   }
 
+  stop(){
+    gsap.to(this.playerInfo, {velocity: 0, duration: .1})
+  }
+
   update(){
     this.playerInfo.positionX -= this.playerInfo.velocity
     this.player.position.x = this.playerInfo.positionX
   }
 }
+
 const player = new Player()
 let doll = new Doll()
 setTimeout(() => {
-  doll.lookBackward()
-},1000)
+  doll.start()
+},2000)
 
 function animate() {
   renderer.render(scene, camera);
@@ -100,3 +117,16 @@ function onwWindowResize() {
   camera.updateProjectionMatrix()
   renderer.setSize(window.innerWidth, window.innerHeight)
 }
+
+window.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowUp'){
+    player.run()
+  }
+})
+
+
+window.addEventListener('keyup', (e) => {
+  if(e.key === 'ArrowUp'){
+    player.stop()
+  }
+})
