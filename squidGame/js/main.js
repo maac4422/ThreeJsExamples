@@ -16,7 +16,7 @@ const endPosition = -startPosition
 const text = document.querySelector('.text')
 const gameTimeLimit = 10
 let gameState = 'loading'
-
+let isLookingBackward = true
 
 function createCube(size, positionX, rotationY = 0, color = 0xfbc851){
   const geometry = new THREE.BoxGeometry(size.w, size.h, size.d);
@@ -47,11 +47,19 @@ class Doll {
   }
 
   lookBackward(){
-    gsap.to(this.doll.rotation, {y: -3.15, duration: .45})
+    gsap.to(this.doll.rotation, {y: -3.15, duration: .45, 
+      onStart: function(){
+        isLookingBackward = true
+      }
+    })
   }
 
   lookForward(){
-    gsap.to(this.doll.rotation, {y: 0, duration: .45})
+    gsap.to(this.doll.rotation, {y: 0, duration: .45, 
+      onComplete: function(){
+        isLookingBackward = false
+      }
+    })
   }
 
   async start(){
@@ -94,7 +102,22 @@ class Player{
     gsap.to(this.playerInfo, {velocity: 0, duration: .1})
   }
 
+  check(){
+    
+    if(this.playerInfo.velocity > 0 && !isLookingBackward) {
+      text.innerText = "You lose!"
+      gameState = 'over'
+    }
+    
+    if(this.playerInfo.positionX < endPosition + .4) {
+      text.innerText = "You Win!"
+      gameState = 'over'
+    }
+    
+  }
+
   update(){
+    this.check()
     this.playerInfo.positionX -= this.playerInfo.velocity
     this.player.position.x = this.playerInfo.positionX
   }
@@ -109,7 +132,13 @@ function startGame() {
   let progressBar = createCube({w: 5, h: .1, d: 1}, 0)
   progressBar.position.y = 3.35
   gsap.to(progressBar.scale,{x:0, duration: gameTimeLimit, ease: 'none'})
-  doll.start()  
+  doll.start()
+  setTimeout(() => {
+    if(gameState !== 'over') {
+      text.innerText = 'You ran out of time!'
+      gameState = 'over'
+    }
+  }, gameTimeLimit * 1000)
 }
 
 init()
@@ -131,6 +160,7 @@ setTimeout(() => {
 },2000)
 
 function animate() {
+  if(gameState === 'over') return
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
   player.update()
