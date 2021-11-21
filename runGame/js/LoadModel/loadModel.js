@@ -14,6 +14,7 @@ export default class LoadModel {
     this.scene = scene
     this.camera = camera
     this.mixers = []
+    this.model = null
     this.previousRAF = null
     this.renderer = renderer
     this.raf()

@@ -8,6 +8,11 @@ export default class Coin {
 
     init(scene, camera, renderer){
         const loadModel = new LoadModel(scene, camera, renderer)
-        loadModel.loadModelGLTF('./resources/coins/','scene.gltf', new THREE.Vector3(0, 20, 0), new THREE.Vector3(10, 10, 10) )
+        this.coin = loadModel.loadModelGLTF('./resources/coins/','scene.gltf', new THREE.Vector3(0, 10, 10), new THREE.Vector3(10, 10, 10) )
+
+        setTimeout(()=> {
+            loadModel.model.rotation.x = 1.55
+        },500)
+        
     }
 }
