@@ -79,8 +79,9 @@ export default class BasicCharacterController {
       Math.abs(frameDecceleration.z), Math.abs(velocity.z))
 
     velocity.add(frameDecceleration)
-/*
-    const controlObject = this.moveparams.target
+
+    const controlObject = this.params.target
+    
     const Q = new THREE.Quaternion()
     const A = new THREE.Vector3()
     const R = controlObject.quaternion.clone()
@@ -122,6 +123,6 @@ export default class BasicCharacterController {
     controlObject.position.add(sideways)
 
     oldPosition.copy(controlObject.position)
-    */
+    
   }
 }
