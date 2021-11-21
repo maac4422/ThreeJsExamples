@@ -16,36 +16,7 @@ export default class LoadModel {
     this.mixers = []
     this.previousRAF = null
     this.renderer = renderer
-
-
-    //this.loadAnimatedModel()
     this.raf()
-  }
-
-  loadAnimatedModel() {
-    const loader = new FBXLoader()
-    loader.setPath('./resources/zombie/')
-    loader.load('tPose.fbx', (fbx) => {
-      fbx.scale.setScalar(0.1)
-      fbx.traverse(c => {
-        c.castShadow = true
-      })
-
-      const params = {
-        target: fbx,
-        camera: this.camera,
-      }
-      this.controls = new BasicCharacterController(params)
-      const anim = new FBXLoader()
-      anim.setPath('./resources/zombie/')
-      anim.load('injuredRun.fbx', (anim) => {
-        const m = new THREE.AnimationMixer(fbx)
-        this.mixers.push(m)
-        const idle = m.clipAction(anim.animations[0])
-        idle.play()
-      })
-      this.scene.add(fbx)
-    })
   }
 
   loadAnimatedModelAndPlay(path, modelFile, animFile, offset) {
@@ -65,12 +36,15 @@ export default class LoadModel {
       const anim = new FBXLoader();
       anim.setPath(path);
       anim.load(animFile, (anim) => {
-        const m = new THREE.AnimationMixer(fbx);
-        this.mixers.push(m);
-        const idle = m.clipAction(anim.animations[0]);
+        const animation = new THREE.AnimationMixer(fbx);
+        this.mixers.push(animation);
+        const idle = animation.clipAction(anim.animations[0]);
+        idle.clampWhenFinished = true
         idle.play();
       });
       this.scene.add(fbx);
+      this.model = fbx
+      this.setModelInfo(offset.z)
     });
   }
 
@@ -82,28 +56,7 @@ export default class LoadModel {
       gltf.scene.position.copy(offset)
 
       this.scene.add(gltf.scene)
-    })
-  }
-
-  loadModel() {
-    const loader = new FBXLoader()
-    loader.setPath(path)
-    loader.load(modelFile, (fbx) => {
-      fbx.scale.setScalar(0.1)
-      fbx.traverse(c => {
-        c.castShadow = true
-      })
-      fbx.position.copy(offset)
-
-      const anim = new FBXLoader()
-      anim.setPath(path)
-      anim.load(animFile, (anim) => {
-        const m = new THREE.AnimationMixer(fbx)
-        this.mixers.push(m)
-        const idle = m.clipAction(anim.animations[0])
-        idle.play()
-      })
-      this.scene.add(fbx)
+      this.model = gltf.scene
     })
   }
 
@@ -122,16 +75,27 @@ export default class LoadModel {
     })
   }
 
+  setModelInfo(positionZ) {
+    this.modelInfo = {
+      positionZ: positionZ,
+      velocity: 0
+    }
+  }
+
   step(timeElapsed) {
-    
     const timeElapsedS = timeElapsed * 0.001
     if (this.controls) {
       if (this.mixers) {
+        this.modelInfo.velocity = 0.3
         if(this.controls.move.forward){
           this.mixers.map(m => m.update(timeElapsedS))
+          this.modelInfo.positionZ += this.modelInfo.velocity
+          this.model.position.z = this.modelInfo.positionZ
         }
         if(this.controls.move.backward){
           this.mixers.map(m => m.update(timeElapsedS))
+          this.modelInfo.positionZ -= this.modelInfo.velocity
+          this.model.position.z = this.modelInfo.positionZ
         }
         if(this.controls.move.left){
           this.mixers.map(m => m.update(timeElapsedS))
