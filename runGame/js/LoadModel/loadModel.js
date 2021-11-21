@@ -57,7 +57,11 @@ export default class LoadModel {
         c.castShadow = true;
       });
       fbx.position.copy(offset);
-
+      const params = {
+        target: fbx,
+        camera: this.camera,
+      }
+      this.controls = new BasicCharacterController(params)
       const anim = new FBXLoader();
       anim.setPath(path);
       anim.load(animFile, (anim) => {
@@ -119,13 +123,23 @@ export default class LoadModel {
   }
 
   step(timeElapsed) {
+    
     const timeElapsedS = timeElapsed * 0.001
-    if (this.mixers) {
-      this.mixers.map(m => m.update(timeElapsedS))
-    }
-
     if (this.controls) {
-      this.controls.update(timeElapsedS)
+      if (this.mixers) {
+        if(this.controls.move.forward){
+          this.mixers.map(m => m.update(timeElapsedS))
+        }
+        if(this.controls.move.backward){
+          this.mixers.map(m => m.update(timeElapsedS))
+        }
+        if(this.controls.move.left){
+          this.mixers.map(m => m.update(timeElapsedS))
+        }
+        if(this.controls.move.right){
+          this.mixers.map(m => m.update(timeElapsedS))
+        }
+      }
     }
   }
 }
