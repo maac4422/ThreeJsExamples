@@ -18,7 +18,7 @@ export default class LoadModel {
     this.renderer = renderer
 
 
-    this.loadAnimatedModel()
+    //this.loadAnimatedModel()
     this.raf()
   }
 
@@ -70,6 +70,17 @@ export default class LoadModel {
     });
   }
 
+  loadModelGLTF(path, modelFile, offset, scale = new THREE.Vector3(1, 1, 1)) {
+    const loader = new GLTFLoader()
+    const pathFile = path + modelFile
+    loader.load(pathFile, (gltf) => {
+      gltf.scene.scale.copy(scale)
+      gltf.scene.position.copy(offset)
+
+      this.scene.add(gltf.scene)
+    })
+  }
+
   loadModel() {
     const loader = new FBXLoader()
     loader.setPath(path)
@@ -93,7 +104,6 @@ export default class LoadModel {
   }
 
   raf() {
-
     requestAnimationFrame((t) => {
       
       if (this.previousRAF === null) {

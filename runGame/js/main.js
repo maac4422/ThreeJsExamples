@@ -1,6 +1,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/controls/OrbitControls.js';
 import LoadModel from './LoadModel/loadModel.js'
+import Coin from './coin.js'
 
 const fov = 60;
 const aspect = window.innerWidth / window.innerHeight;
@@ -48,6 +49,7 @@ controls.target.set(0, 20, 0);
 controls.update();
 
 
+//plane Scenario 
 const plane = new THREE.Mesh(
   new THREE.PlaneGeometry(100, 100, 10, 10),
   new THREE.MeshStandardMaterial({
@@ -58,13 +60,16 @@ plane.receiveShadow = true;
 plane.rotation.x = -Math.PI / 2;
 scene.add(plane);
 
+
 window.addEventListener('resize', () => {
   onWindowResize();
 }, false);
 
 
 window.addEventListener('DOMContentLoaded', () => {
-  new LoadModel(scene, camera, renderer)
+  const zombie = new LoadModel(scene, camera, renderer)
+  zombie.loadAnimatedModelAndPlay('./resources/zombie/','tPose.fbx', 'injuredRun.fbx', new THREE.Vector3(0, 0, 0) )
+  new Coin(scene, camera, renderer)
 });
 
 
