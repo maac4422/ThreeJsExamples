@@ -3,79 +3,90 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.118/examples
 import LoadModel from './LoadModel/loadModel.js'
 import Coin from './coin.js'
 
-const fov = 60;
-const aspect = window.innerWidth / window.innerHeight;
-const near = 1.0;
-const far = 1000.0;
-const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-camera.position.set(75, 20, 0)
+class RunGame {
+  constructor() {
+    this.init()
+  }
 
-const scene = new THREE.Scene();
+  init() {
+    const fov = 60;
+    const aspect = window.innerWidth / window.innerHeight;
+    const near = 1.0;
+    const far = 1000.0;
+    this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+    this.camera.position.set(25, 10, 25)
 
-const renderer = new THREE.WebGLRenderer();
+    this.scene = new THREE.Scene();
 
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer = new THREE.WebGLRenderer();
 
-document.body.appendChild(renderer.domElement);
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-renderer.setClearColor(0xb7c3f3, 1)
+    document.body.appendChild(this.renderer.domElement);
 
-let light = new THREE.DirectionalLight(0xFFFFFF, 1.0);
-light.position.set(20, 100, 10);
-light.target.position.set(0, 0, 0);
-light.castShadow = true;
-light.shadow.bias = -0.001;
-light.shadow.mapSize.width = 2048;
-light.shadow.mapSize.height = 2048;
-light.shadow.camera.near = 0.1;
-light.shadow.camera.far = 500.0;
-light.shadow.camera.near = 0.5;
-light.shadow.camera.far = 500.0;
-light.shadow.camera.left = 100;
-light.shadow.camera.right = -100;
-light.shadow.camera.top = 100;
-light.shadow.camera.bottom = -100;
+    this.renderer.setClearColor(0xb7c3f3, 1)
 
-scene.add(light);
-light = new THREE.AmbientLight(0xFFFFFF, 4.0);
-scene.add(light);
+    let light = new THREE.DirectionalLight(0xFFFFFF, 1.0);
+    light.position.set(20, 100, 10);
+    light.target.position.set(0, 0, 0);
+    light.castShadow = true;
+    light.shadow.bias = -0.001;
+    light.shadow.mapSize.width = 2048;
+    light.shadow.mapSize.height = 2048;
+    light.shadow.camera.near = 0.1;
+    light.shadow.camera.far = 500.0;
+    light.shadow.camera.near = 0.5;
+    light.shadow.camera.far = 500.0;
+    light.shadow.camera.left = 100;
+    light.shadow.camera.right = -100;
+    light.shadow.camera.top = 100;
+    light.shadow.camera.bottom = -100;
 
-// Center camera to focus character
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 20, 0);
-controls.update();
+    this.scene.add(light);
+    light = new THREE.AmbientLight(0xFFFFFF, 4.0);
+    this.scene.add(light);
+
+    // Center camera to focus character
+    const controls = new OrbitControls(this.camera, this.renderer.domElement);
+    controls.target.set(0, 20, 0);
+    controls.update();
 
 
-//plane Scenario 
-const plane = new THREE.Mesh(
-  new THREE.PlaneGeometry(100, 100, 10, 10),
-  new THREE.MeshStandardMaterial({
-    color: 0x202020,
-  }));
-plane.castShadow = false;
-plane.receiveShadow = true;
-plane.rotation.x = -Math.PI / 2;
-scene.add(plane);
+    //plane Scenario 
+    const plane = new THREE.Mesh(
+      new THREE.PlaneGeometry(100, 100, 10, 10),
+      new THREE.MeshStandardMaterial({
+        color: 0x202020,
+      }));
+    plane.castShadow = false;
+    plane.receiveShadow = true;
+    plane.rotation.x = -Math.PI / 2;
+    this.scene.add(plane);
+  }
 
+  onWindowResize() {
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+  
+}
+
+
+
+let app = null;
 
 window.addEventListener('resize', () => {
-  onWindowResize();
+  app.onWindowResize();
 }, false);
 
-
 window.addEventListener('DOMContentLoaded', () => {
-  const zombie = new LoadModel(scene, camera, renderer)
-  zombie.loadAnimatedModelAndPlay('./resources/zombie/','tPose.fbx', 'injuredRun.fbx', new THREE.Vector3(0, 0, 0) )
-  new Coin(scene, camera, renderer)
+  app = new RunGame();
+  const zombie = new LoadModel(app.scene, app.camera, app.renderer)
+  zombie.loadAnimatedModelAndPlay('./resources/zombie/', 'tPose.fbx', 'injuredRun.fbx', new THREE.Vector3(0, 0, 0))
+  new Coin(app.scene, app.camera, app.renderer)
 });
-
-
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
 

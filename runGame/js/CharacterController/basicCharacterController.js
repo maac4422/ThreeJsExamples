@@ -2,8 +2,6 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.mod
 
 export default class BasicCharacterController {
   constructor(params) {
-    //this.input = new BasicCharacterControllerInput()
-    //this.stateMachine = new FiniteStateMachine()
     this.init(params)
   }
 
@@ -18,6 +16,10 @@ export default class BasicCharacterController {
     this.decceleration = new THREE.Vector3(-0.0005, -0.0001, -5.0)
     this.acceleration = new THREE.Vector3(1, 0.25, 50.0)
     this.velocity = new THREE.Vector3(0, 0, 0)
+    this.positionCharacter = new THREE.Vector3(0,0,0)
+
+    //this.input = new BasicCharacterControllerInput()
+    //this.stateMachine = new FiniteStateMachine()
 
     document.addEventListener('keydown', (e) => this.onKeyDown(e), false)
     document.addEventListener('keyup', (e) => this.onKeyUp(e), false)
@@ -122,7 +124,21 @@ export default class BasicCharacterController {
     controlObject.position.add(forward)
     controlObject.position.add(sideways)
 
-    oldPosition.copy(controlObject.position)
+    this.positionCharacter.copy(controlObject.position)
     
+    if(this.mixer) {
+      this.mixer.update(timeInSeconds)
+    }
+  }
+
+  get position() {
+    return this.positionCharacter
+  }
+
+  get rotation() {
+    if(!this.target) {
+      return new THREE.Quaternion();
+    }
+    return this.target.quaternion;
   }
 }
